@@ -1,0 +1,875 @@
+{
+  "info": {
+    "_postman_id": "0e6ecefd-098a-4732-992c-17b4009b9f94",
+    "name": "Lavanderia Jireh",
+    "description": "Backend Django REST — Sistema de Lavandería",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48648001",
+    "_collection_link": "https://go.postman.co/collection/48648001-0e6ecefd-098a-4732-992c-17b4009b9f94?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"<refresh_token>\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"<refresh_token>\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Listar Empleados",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/empleados/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "empleados",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Empleado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"empleado1\",\n  \"contrasena\": \"pass1234\",\n  \"nombres\": \"Luc\\u00eda\",\n  \"apellidos\": \"Paredes\",\n  \"telefono\": \"987000111\",\n  \"id_rol\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/empleados/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "empleados",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver Perfil Propio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/empleados/perfil/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "empleados",
+                "perfil",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar Estado Empleado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/empleados/1/cambiar-estado/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "empleados",
+                "1",
+                "cambiar-estado",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/roles/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "roles",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Rol",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_rol\": \"cajero\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/roles/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "roles",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Listar Clientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clientes/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Mar\\u00eda\",\n  \"apellidos\": \"Garc\\u00eda L\\u00f3pez\",\n  \"telefono\": \"987654321\",\n  \"correo\": \"maria.garcia@gmail.com\",\n  \"direccion\": \"Av. Lima 123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clientes/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver Cliente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clientes/6/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "6",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Cliente",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telefono\": \"999111222\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clientes/1/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "1",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Historial del Cliente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clientes/1/historial/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "1",
+                "historial",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Agregar Persona Autorizada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Pedro Garc\\u00eda\",\n  \"dni\": \"45678901\",\n  \"telefono\": \"912345678\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clientes/1/personas-autorizadas/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "1",
+                "personas-autorizadas",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pedidos",
+      "item": [
+        {
+          "name": "Listar Pedidos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Pedido (con prendas)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_cliente\": 1,\n  \"id_empleado\": 1,\n  \"fecha_entrega\": \"2026-05-26T10:00:00Z\",\n  \"observaciones\": \"Cliente pidi\\u00f3 que quede bien planchado\",\n  \"prendas\": [\n    {\n      \"tipo_prenda\": \"Camisa\",\n      \"color\": \"Blanco\",\n      \"peso\": \"0.50\",\n      \"cantidad\": 3,\n      \"observaciones\": \"Manga larga\"\n    },\n    {\n      \"tipo_prenda\": \"Pantal\\u00f3n\",\n      \"color\": \"Azul\",\n      \"peso\": \"0.80\",\n      \"cantidad\": 2,\n      \"observaciones\": null\n    },\n    {\n      \"tipo_prenda\": \"Edred\\u00f3n\",\n      \"color\": \"Beige\",\n      \"peso\": \"2.50\",\n      \"cantidad\": 1,\n      \"observaciones\": \"Doble\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ver Pedido",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/1/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Calcular Total",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/1/calcular-total/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1",
+                "calcular-total",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar Estado → en_proceso",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"en_proceso\",\n  \"descripcion\": \"Prendas ingresadas a lavado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/1/cambiar-estado/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1",
+                "cambiar-estado",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar Estado → listo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"listo\",\n  \"descripcion\": \"Listo para recojo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/1/cambiar-estado/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1",
+                "cambiar-estado",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar Estado → entregado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"entregado\",\n  \"descripcion\": \"Entregado al cliente\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/1/cambiar-estado/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1",
+                "cambiar-estado",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Servicios",
+      "item": [
+        {
+          "name": "Listar Servicios",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/servicios/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "servicios",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Servicio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_servicio\": \"Lavado express\",\n  \"descripcion\": \"Entrega garantizada en 3 horas\",\n  \"precio_base\": \"8.00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/servicios/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "servicios",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Asignar Servicio a Prenda (calcula subtotal)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_prenda\": 1,\n  \"id_servicio\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/servicios/detalles/calcular/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "servicios",
+                "detalles",
+                "calcular",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pagos",
+      "item": [
+        {
+          "name": "Listar Pagos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pagos/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pagos",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar Pago",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_pedido\": 1,\n  \"monto\": \"36.30\",\n  \"metodo_pago\": \"yape\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pagos/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pagos",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anular Pago",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pagos/1/anular/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "pagos",
+                "1",
+                "anular",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://lavanderiajireh-api.onrender.com"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
