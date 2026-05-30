@@ -16,8 +16,8 @@ class ServicioService:
         except Servicio.DoesNotExist:
             raise RecursoNoEncontradoError(f"Servicio {id_servicio} no encontrado.")
 
-        # subtotal = precio_base * peso de la prenda
-        subtotal = Decimal(str(servicio.precio_base)) * Decimal(str(prenda.peso))
+        # subtotal = precio_base * peso * cantidad
+        subtotal = Decimal(str(servicio.precio_base)) * Decimal(str(prenda.peso)) * Decimal(str(prenda.cantidad))
 
         detalle, _ = DetalleServicio.objects.update_or_create(
             id_prenda=prenda,
