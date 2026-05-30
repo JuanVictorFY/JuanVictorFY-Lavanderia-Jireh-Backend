@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from core.permissions import EsEmpleadoActivo
+from core.permissions import EsEmpleadoActivo, EsAdministradorORecepcionista
 from .models import Cliente, PersonaAutorizada
 from .serializers import ClienteSerializer, PersonaAutorizadaSerializer
 from .services import ClienteService
@@ -10,7 +10,7 @@ from .services import ClienteService
 class ClienteViewSet(viewsets.ModelViewSet):
     queryset           = Cliente.objects.prefetch_related("personas_autorizadas").all()
     serializer_class   = ClienteSerializer
-    permission_classes = [EsEmpleadoActivo]
+    permission_classes = [EsAdministradorORecepcionista]
 
     # GET /api/clientes/{id}/historial/
     @action(detail=True, methods=["get"], url_path="historial")
@@ -34,4 +34,4 @@ class ClienteViewSet(viewsets.ModelViewSet):
 class PersonaAutorizadaViewSet(viewsets.ModelViewSet):
     queryset           = PersonaAutorizada.objects.select_related("id_cliente").all()
     serializer_class   = PersonaAutorizadaSerializer
-    permission_classes = [EsEmpleadoActivo]
+    permission_classes = [EsAdministradorORecepcionista]

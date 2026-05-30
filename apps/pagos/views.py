@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from core.permissions import EsEmpleadoActivo
+from core.permissions import EsAdministradorORecepcionista
 from .models import Pago
 from .serializers import PagoSerializer
 from .services import PagoService
@@ -10,7 +10,7 @@ from .services import PagoService
 class PagoViewSet(viewsets.ModelViewSet):
     queryset           = Pago.objects.select_related("id_pedido").all()
     serializer_class   = PagoSerializer
-    permission_classes = [EsEmpleadoActivo]
+    permission_classes = [EsAdministradorORecepcionista]
 
     def create(self, request, *args, **kwargs):
         id_pedido   = request.data.get("id_pedido")
