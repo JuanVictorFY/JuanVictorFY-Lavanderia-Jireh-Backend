@@ -18,6 +18,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from core.pagination import SmallPagination
 from core.permissions import EsEmpleadoActivo, EsAdministradorORecepcionista
 from core.exceptions import RecursoNoEncontradoError
 from .models import Pedido
@@ -179,6 +180,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         "id_cliente", "id_empleado"
     ).prefetch_related("prendas", "estados").all()
     permission_classes = [EsEmpleadoActivo]
+    pagination_class   = SmallPagination
 
     def get_permissions(self):
         # Operario solo puede ver pedidos y cambiar estado

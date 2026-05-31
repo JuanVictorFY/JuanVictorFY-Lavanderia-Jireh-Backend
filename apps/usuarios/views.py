@@ -38,6 +38,19 @@ class EmpleadoViewSet(viewsets.ModelViewSet):
     def perfil(self, request):
         return Response(EmpleadoSerializer(request.user.empleado).data)
 
+    def create(self, request, *args, **kwargs):
+        serializer = CrearEmpleadoSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        empleado = serializer.save()
+        return Response(EmpleadoSerializer(empleado).data, status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        empleado = self.get_object()
+        user = empleado.user
+        empleado.delete()
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     # PATCH /api/usuarios/empleados/{id}/cambiar-estado/
     @action(detail=True, methods=["patch"], url_path="cambiar-estado")
     def cambiar_estado(self, request, pk=None):
