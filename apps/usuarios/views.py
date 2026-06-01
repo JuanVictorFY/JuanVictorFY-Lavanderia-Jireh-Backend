@@ -26,6 +26,10 @@ class RolViewSet(viewsets.ModelViewSet):
 class EmpleadoViewSet(viewsets.ModelViewSet):
     queryset           = Empleado.objects.select_related("id_rol", "user").all()
     permission_classes = [EsAdministrador]
+    search_fields      = ["nombres", "apellidos", "user__username"]
+    ordering_fields    = ["apellidos", "nombres", "created_at"]
+    ordering           = ["apellidos", "nombres"]
+    filterset_fields   = ["estado", "id_rol"]
 
     def get_serializer_class(self):
         if self.action == "create":
