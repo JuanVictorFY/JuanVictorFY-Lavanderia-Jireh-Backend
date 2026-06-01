@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
 class EsAdministrador(BasePermission):
@@ -26,3 +26,27 @@ class EsAdministradorORecepcionista(BasePermission):
             return False
         rol = request.user.empleado.id_rol.nombre_rol
         return rol in ("administrador", "recepcionista")
+
+
+class EsAdministradorOSoloLectura(BasePermission):
+    """Permite lectura a cualquier empleado activo; escritura solo a administradores."""
+    def has_permission(self, request, view) -> bool:
+        if not (request.user.is_authenticated and hasattr(request.user, "empleado")):
+            return False
+        if request.method in SAFE_METHODS:
+            return request.user.empleado.estado
+        return request.user.empleado.id_rol.nombre_rol == "administrador"
+
+
+class EsOperario(BasePermission):
+    def has_permission(self, request, view) -> bool:
+        if not (request.user.is_authenticated and hasattr(request.user, "empleado")):
+            return False
+        return request.user.empleado.id_rol.nombre_rol == "operario"
+
+
+class EsRecepcionista(BasePermission):
+    def has_permission(self, request, view) -> bool:
+        if not (request.user.is_authenticated and hasattr(request.user, "empleado")):
+            return False
+        return request.user.empleado.id_rol.nombre_rol == "recepcionista"
