@@ -43,6 +43,10 @@ class ActualizarEmpleadoSerializer(serializers.ModelSerializer):
         fields = ["nombres", "apellidos", "telefono", "id_rol"]
 
 
+class CambiarContrasenaSerializer(serializers.Serializer):
+    nueva_contrasena = serializers.CharField(write_only=True, min_length=8)
+
+
 # JWT con datos del empleado en el payload
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
@@ -50,10 +54,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
         if hasattr(user, "empleado"):
-            token["nombres"]   = user.empleado.nombres
-            token["apellidos"] = user.empleado.apellidos
-            token["rol"]       = user.empleado.id_rol.nombre_rol
-            token["estado"]    = user.empleado.estado
+            token["nombres"]       = user.empleado.nombres
+            token["apellidos"]     = user.empleado.apellidos
+            token["rol"]           = user.empleado.id_rol.nombre_rol
+            token["estado"]        = user.empleado.estado
+            token["es_admin_total"] = user.is_superuser
         return token
 
     def validate(self, attrs: dict) -> dict:
@@ -62,9 +67,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError("Cuenta desactivada. Contacta al administrador.")
         if hasattr(self.user, "empleado"):
             data["empleado"] = {
-                "id":        self.user.empleado.id,
-                "nombres":   self.user.empleado.nombres,
-                "apellidos": self.user.empleado.apellidos,
-                "rol":       self.user.empleado.id_rol.nombre_rol,
+                "id":           self.user.empleado.id,
+                "nombres":      self.user.empleado.nombres,
+                "apellidos":    self.user.empleado.apellidos,
+                "rol":          self.user.empleado.id_rol.nombre_rol,
+                "es_admin_total": self.user.is_superuser,
             }
         return data

@@ -27,6 +27,16 @@ class EmpleadoService:
         return empleado
 
     @staticmethod
+    def cambiar_contrasena(id_empleado: int, nueva_contrasena: str) -> Empleado:
+        try:
+            empleado = Empleado.objects.select_related("user").get(pk=id_empleado)
+        except Empleado.DoesNotExist:
+            raise RecursoNoEncontradoError(f"Empleado {id_empleado} no encontrado.")
+        empleado.user.set_password(nueva_contrasena)
+        empleado.user.save(update_fields=["password"])
+        return empleado
+
+    @staticmethod
     def cambiar_rol(id_empleado: int, id_rol: int) -> Empleado:
         try:
             empleado = Empleado.objects.get(pk=id_empleado)

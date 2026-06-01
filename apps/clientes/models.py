@@ -5,6 +5,7 @@ from core.models import TimeStampedModel
 class Cliente(TimeStampedModel):
     nombres        = models.CharField(max_length=100)
     apellidos      = models.CharField(max_length=100)
+    dni            = models.CharField(max_length=20, blank=True, null=True)
     telefono       = models.CharField(max_length=20, blank=True, null=True)
     direccion      = models.CharField(max_length=255, blank=True, null=True)
     correo         = models.EmailField(max_length=150, unique=True, blank=True, null=True)

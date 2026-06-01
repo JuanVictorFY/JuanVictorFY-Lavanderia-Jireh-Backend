@@ -68,13 +68,13 @@ H, id_empleado = login()
 # ──────────────────────────────────────────────────────────────
 section("SERVICIOS")
 SERVICIOS = [
-    {"nombre_servicio": "Lavado normal",     "descripcion": "Lavado estandar en frio por kg",            "precio_base": "3.50"},
+    {"nombre_servicio": "Lavado normal",     "descripcion": "Lavado estándar en frío por kg",            "precio_base": "3.50"},
     {"nombre_servicio": "Lavado a vapor",    "descripcion": "Lavado profundo con vapor caliente por kg", "precio_base": "6.00"},
     {"nombre_servicio": "Lavado en seco",    "descripcion": "Para prendas delicadas sin agua",           "precio_base": "9.00"},
     {"nombre_servicio": "Planchado",         "descripcion": "Solo planchado de prendas limpias",         "precio_base": "4.00"},
-    {"nombre_servicio": "Lavado+Planchado",  "descripcion": "Combo lavado normal mas planchado",         "precio_base": "7.00"},
-    {"nombre_servicio": "Desinfeccion",      "descripcion": "Lavado con desinfectante antibacterial",    "precio_base": "5.50"},
-    {"nombre_servicio": "Lavado de edredon", "descripcion": "Para edredones y cobertores gruesos",       "precio_base": "12.00"},
+    {"nombre_servicio": "Lavado+Planchado",  "descripcion": "Combo lavado normal más planchado",         "precio_base": "7.00"},
+    {"nombre_servicio": "Desinfección",      "descripcion": "Lavado con desinfectante antibacterial",    "precio_base": "5.50"},
+    {"nombre_servicio": "Lavado de edredón", "descripcion": "Para edredones y cobertores gruesos",       "precio_base": "12.00"},
     {"nombre_servicio": "Lavado express",    "descripcion": "Entrega garantizada en 3 horas",            "precio_base": "8.00"},
 ]
 
@@ -223,7 +223,7 @@ MENSAJES = {
     "en_proceso": "Prendas ingresadas a lavado",
     "listo":      "Prendas listas para recojo",
     "entregado":  "Pedido entregado al cliente",
-    "cancelado":  "Cliente cancelo el pedido",
+    "cancelado":  "Cliente canceló el pedido",
 }
 
 for i, spec in enumerate(PEDIDOS_SPEC, 1):

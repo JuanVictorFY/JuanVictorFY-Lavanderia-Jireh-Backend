@@ -1,4 +1,5 @@
 import os
+import hashlib
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -9,6 +10,13 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+
+# Clave de firma JWT con mínimo 32 bytes garantizado (SHA-256 del SECRET_KEY si es corto)
+_raw_key = os.getenv("JWT_SIGNING_KEY") or SECRET_KEY or ""
+_JWT_SIGNING_KEY = (
+    _raw_key if len(_raw_key.encode()) >= 32
+    else hashlib.sha256(_raw_key.encode()).hexdigest()
+)
 DEBUG = False
 
 _db_url = urlparse(os.getenv("DATABASE_URL", ""))
@@ -122,6 +130,7 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES":        ("Bearer",),
     "USER_ID_FIELD":            "id",
     "USER_ID_CLAIM":            "user_id",
+    "SIGNING_KEY":              _JWT_SIGNING_KEY,
 }
 
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")

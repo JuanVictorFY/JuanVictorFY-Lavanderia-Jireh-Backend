@@ -10,6 +10,15 @@ class EsAdministrador(BasePermission):
         )
 
 
+class EsAdminTotal(BasePermission):
+    """Solo el superusuario (admin total) pasa."""
+    def has_permission(self, request, view) -> bool:
+        return (
+            request.user.is_authenticated
+            and request.user.is_superuser
+        )
+
+
 class EsEmpleadoActivo(BasePermission):
     def has_permission(self, request, view) -> bool:
         return (

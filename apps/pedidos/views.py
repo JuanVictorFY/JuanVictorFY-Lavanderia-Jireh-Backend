@@ -1,8 +1,12 @@
 import io
 import html as _html
+import logging
 
+from django.core.mail import EmailMessage
 from django.http import HttpResponse
 from django.utils import timezone
+
+logger = logging.getLogger("lavanderia")
 
 from reportlab.graphics.shapes import Circle, Drawing, Rect
 from reportlab.lib import colors
@@ -229,6 +233,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
 
         c = pedido.id_cliente
         nombre_c     = f"{c.nombres} {c.apellidos}"
+        dni_c        = c.dni or "—"
         telefono_c   = c.telefono or "—"
         direccion_c  = c.direccion or "—"
         estado_label = ESTADO_MAP.get(pedido.estado, pedido.estado)
@@ -276,6 +281,7 @@ class PedidoViewSet(viewsets.ModelViewSet):
         info_rows = [
             [_lbl("DATOS DEL CLIENTE")],
             [_P(f"<b>{_html.escape(nombre_c)}</b>", fs=9.5)],
+            [_val(f"DNI: {dni_c}", fs=8)],
             [_val(f"Tel: {telefono_c}", fs=8)],
             [_val(f"Dir: {direccion_c}", fs=8)],
             [Spacer(1, 5)],
@@ -449,6 +455,214 @@ class PedidoViewSet(viewsets.ModelViewSet):
             f'inline; filename="recibo-{pedido.codigo}.pdf"'
         )
         return response
+
+    @action(detail=True, methods=["post"], url_path="enviar-recibo")
+    def enviar_recibo(self, request, pk=None):
+        """Genera el PDF del recibo y lo envía al correo del cliente."""
+        PedidoService.obtener_pedido_por_id(pk)
+        pedido = Pedido.objects.select_related(
+            "id_cliente", "id_empleado"
+        ).prefetch_related("prendas__detalles__id_servicio").get(pk=pk)
+
+        cliente = pedido.id_cliente
+        if not cliente.correo:
+            return Response(
+                {"error": "El cliente no tiene correo registrado."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Genera el PDF usando la misma lógica del ticket
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(
+            buffer, pagesize=A5,
+            leftMargin=10 * mm, rightMargin=10 * mm,
+            topMargin=10 * mm, bottomMargin=8 * mm,
+        )
+
+        c = cliente
+        nombre_c     = f"{c.nombres} {c.apellidos}"
+        dni_c        = c.dni or "—"
+        telefono_c   = c.telefono or "—"
+        direccion_c  = c.direccion or "—"
+        estado_label = ESTADO_MAP.get(pedido.estado, pedido.estado)
+        estado_color = ESTADO_COLOR.get(pedido.estado, GRIS)
+
+        nombre_tbl = Table([
+            [_P("Lavanderia Jireh", fs=16, bold=True, color=TEAL_DARK)],
+            [_P("Servicio Profesional de Lavandería", fs=8.5, color=GRIS)],
+        ], colWidths=["*"])
+        nombre_tbl.setStyle(_TS([
+            ("TOPPADDING",    (0, 0), (-1, -1), 1),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 0),
+        ]))
+        empresa = Table([[_logo(size=50), nombre_tbl]], colWidths=[58, "*"])
+        empresa.setStyle(_TS([
+            ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 0),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
+            ("TOPPADDING",    (0, 0), (-1, -1), 0),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+        ]))
+        banner = Table([
+            [_P("RECIBO ELECTRÓNICO", fs=12, bold=True, color=BLANCO, align=TA_CENTER)]
+        ], colWidths=["*"])
+        banner.setStyle(_TS([
+            ("BACKGROUND",    (0, 0), (-1, -1), TEAL),
+            ("TOPPADDING",    (0, 0), (-1, -1), 7),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+        ]))
+        qr_data = f"Pedido: {pedido.codigo} | Cliente: {nombre_c} | Total: S/ {pedido.total:.2f}"
+        qr = _qr_image(qr_data, 70)
+        info_rows = [
+            [_lbl("DATOS DEL CLIENTE")],
+            [_P(f"<b>{_html.escape(nombre_c)}</b>", fs=9.5)],
+            [_val(f"DNI: {dni_c}", fs=8)],
+            [_val(f"Tel: {telefono_c}", fs=8)],
+            [_val(f"Dir: {direccion_c}", fs=8)],
+            [Spacer(1, 5)],
+            [_lbl("PEDIDO")],
+            [_P(f"<b>{_html.escape(pedido.codigo)}</b>", fs=12, color=TEAL_DARK)],
+            [_val(f"Ingreso: {_fmt_date(pedido.fecha_ingreso)}", fs=7.5)],
+            [_val(f"Entrega: {_fmt_date(pedido.fecha_entrega)}", fs=7.5)],
+            [_P(f"<b>{_html.escape(estado_label)}</b>", fs=9, color=estado_color)],
+        ]
+        info_c = Table(info_rows, colWidths=["*"])
+        info_c.setStyle(_TS([
+            ("TOPPADDING",    (0, 0), (-1, -1), 1.5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 1.5),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 0),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
+        ]))
+        bloque_info = Table([[info_c, qr]], colWidths=["*", 76])
+        bloque_info.setStyle(_TS([
+            ("VALIGN",        (0, 0), (-1, -1), "TOP"),
+            ("BOX",           (0, 0), (-1, -1), 0.8, GRIS_BORDE),
+            ("BACKGROUND",    (0, 0), (-1, -1), GRIS_BG),
+            ("LINEAFTER",     (0, 0), (0, 0), 0.5, GRIS_BORDE),
+            ("LEFTPADDING",   (0, 0), (0, 0), 9),
+            ("RIGHTPADDING",  (0, 0), (0, 0), 6),
+            ("LEFTPADDING",   (1, 0), (1, 0), 5),
+            ("RIGHTPADDING",  (1, 0), (1, 0), 5),
+            ("TOPPADDING",    (0, 0), (-1, -1), 7),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+        ]))
+
+        svc_data = [[
+            _P("", fs=1),
+            _P("SERVICIO / PRENDA", fs=7.5, bold=True, color=BLANCO),
+            _P("CANT.", fs=7.5, bold=True, color=BLANCO, align=TA_CENTER),
+            _P("PESO", fs=7.5, bold=True, color=BLANCO, align=TA_CENTER),
+            _P("PRECIO", fs=7.5, bold=True, color=BLANCO, align=TA_RIGHT),
+        ]]
+        for prenda in pedido.prendas.all():
+            svc_list = [d.id_servicio.nombre_servicio for d in prenda.detalles.all()]
+            svc_txt  = " / ".join(svc_list) or "—"
+            subtotal = sum(d.subtotal for d in prenda.detalles.all())
+            desc = Paragraph(
+                f'<b>{_html.escape(prenda.tipo_prenda)}</b>'
+                f'<br/><font size="7" color="#64748B">{_html.escape(svc_txt)}</font>',
+                ParagraphStyle("d", parent=_STYLES["Normal"],
+                               fontSize=8.5, fontName="Helvetica",
+                               textColor=NEGRO, leading=12),
+            )
+            svc_data.append([
+                _svc_dot(svc_txt),
+                desc,
+                _P(str(prenda.cantidad), fs=8.5, align=TA_CENTER),
+                _P(f"{prenda.peso} kg", fs=8.5, align=TA_CENTER),
+                _P(f"S/ {subtotal:.2f}", fs=8.5, bold=True, align=TA_RIGHT),
+            ])
+        if len(svc_data) == 1:
+            svc_data.append([_P(""), _P("Sin prendas registradas", fs=8, color=GRIS), _P(""), _P(""), _P("")])
+        svc_tbl = Table(svc_data, colWidths=[14, "*", 36, 40, 50])
+        svc_tbl.setStyle(_TS([
+            ("BACKGROUND",     (0, 0), (-1, 0), TEAL_DARK),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [BLANCO, GRIS_BG]),
+            ("BOX",            (0, 0), (-1, -1), 0.8, GRIS_BORDE),
+            ("LINEBELOW",      (0, 1), (-1, -2), 0.3, GRIS_BORDE),
+            ("VALIGN",         (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING",     (0, 0), (-1, 0), 5),
+            ("BOTTOMPADDING",  (0, 0), (-1, 0), 5),
+            ("TOPPADDING",     (0, 1), (-1, -1), 6),
+            ("BOTTOMPADDING",  (0, 1), (-1, -1), 6),
+            ("LEFTPADDING",    (0, 0), (-1, -1), 5),
+            ("RIGHTPADDING",   (0, 0), (-1, -1), 5),
+        ]))
+
+        total_val    = float(pedido.total)
+        subtotal_val = total_val / 1.18
+        igv_val      = total_val - subtotal_val
+        resumen = Table([
+            [_P("RESUMEN DE PAGO", fs=9, bold=True, color=BLANCO, align=TA_CENTER), ""],
+            [_P("Subtotal:", fs=8.5, color=GRIS), _P(f"S/ {subtotal_val:.2f}", fs=8.5, align=TA_RIGHT)],
+            [_P("Descuento:", fs=8.5, color=GRIS), _P("S/ 0.00", fs=8.5, color=GRIS, align=TA_RIGHT)],
+            [_P("IGV (18%):", fs=8.5, color=GRIS), _P(f"S/ {igv_val:.2f}", fs=8.5, align=TA_RIGHT)],
+            [_P("TOTAL A PAGAR:", fs=11, bold=True), _P(f"S/ {total_val:.2f}", fs=14, bold=True, color=TEAL_DARK, align=TA_RIGHT)],
+        ], colWidths=["55%", "45%"])
+        resumen.setStyle(_TS([
+            ("SPAN",          (0, 0), (1, 0)),
+            ("BACKGROUND",    (0, 0), (1, 0), TEAL),
+            ("BACKGROUND",    (0, 1), (1, 3), GRIS_BG),
+            ("BACKGROUND",    (0, 4), (1, 4), TEAL_BG),
+            ("LINEABOVE",     (0, 4), (1, 4), 1.5, TEAL),
+            ("LINEBELOW",     (0, 1), (1, 3), 0.3, GRIS_BORDE),
+            ("BOX",           (0, 0), (-1, -1), 0.8, GRIS_BORDE),
+            ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING",    (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 9),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 9),
+        ]))
+        resumen_wrapper = Table([["", resumen]], colWidths=["30%", "70%"])
+        resumen_wrapper.setStyle(_TS([
+            ("LEFTPADDING",   (0, 0), (-1, -1), 0),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
+            ("TOPPADDING",    (0, 0), (-1, -1), 0),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+        ]))
+        footer_style = ParagraphStyle(
+            "fs", parent=_STYLES["Normal"],
+            fontSize=7.5, fontName="Helvetica",
+            textColor=GRIS, alignment=TA_CENTER, leading=12,
+        )
+        story = [
+            Spacer(1, 7), empresa, Spacer(1, 8), banner, Spacer(1, 9),
+            bloque_info, Spacer(1, 9), svc_tbl, Spacer(1, 9),
+            resumen_wrapper, Spacer(1, 10),
+            HRFlowable(width="100%", thickness=0.5, color=GRIS_BORDE, spaceAfter=5),
+            Paragraph("Gracias por confiar en Lavanderia Jireh", footer_style),
+            Paragraph("Tu ropa, en las mejores manos · lavanderiajireh.com", footer_style),
+        ]
+        doc.build(story, onFirstPage=_draw_bg, onLaterPages=_draw_bg)
+        buffer.seek(0)
+        pdf_bytes = buffer.getvalue()
+
+        try:
+            email = EmailMessage(
+                subject=f"Tu recibo — Pedido {pedido.codigo} | Lavanderia Jireh",
+                body=(
+                    f"Hola {cliente.nombres},\n\n"
+                    f"Adjunto encontrarás el recibo de tu pedido {pedido.codigo}.\n\n"
+                    f"Total: S/ {pedido.total:.2f}\n"
+                    f"Estado: {ESTADO_MAP.get(pedido.estado, pedido.estado)}\n\n"
+                    f"— Lavanderia Jireh"
+                ),
+                from_email=None,
+                to=[cliente.correo],
+            )
+            email.attach(
+                filename=f"recibo-{pedido.codigo}.pdf",
+                content=pdf_bytes,
+                mimetype="application/pdf",
+            )
+            email.send(fail_silently=False)
+            logger.info("Recibo enviado a %s — pedido %s", cliente.correo, pedido.codigo)
+        except Exception as exc:
+            logger.error("Error enviando recibo a %s: %s", cliente.correo, str(exc))
+            return Response({"error": "No se pudo enviar el correo."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({"ok": True, "correo": cliente.correo})
 
 
 # ── Vista pública ─────────────────────────────────────────────────────────────
