@@ -18,6 +18,11 @@ class PagoService:
         if pedido.estado == Pedido.CANCELADO:
             raise ReglaDeNegocioError("No se puede pagar un pedido cancelado.")
 
+        try:
+            monto = Decimal(str(monto))
+        except Exception:
+            raise ReglaDeNegocioError("El monto ingresado no es válido.")
+
         if monto <= 0:
             raise ReglaDeNegocioError("El monto del pago debe ser mayor a cero.")
 
